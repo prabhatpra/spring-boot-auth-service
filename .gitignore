@@ -1,16 +1,41 @@
-# Compiled class file
-*.class
+# ==== Java / Spring Boot Ignore Rules ====
 
-# Log file
+# Build output
+/target/
+out/
+build/
+
+# Environment & config files
+.env
+.env.local
+application-dev.properties
+application-prod.properties
+
+# IDE folders & files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs & temporary files
 *.log
+*.tmp
+*.bak
+*.swp
+*.cache
+*.orig
 
-# BlueJ files
-*.ctxt
+# OS generated files
+.DS_Store
+Thumbs.db
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Dependency & wrapper files
+.mvn/wrapper/maven-wrapper.jar
+.gradle/
 
-# Package Files #
+# Java compiled / packaged files
+*.class
 *.jar
 *.war
 *.nar
@@ -19,6 +44,18 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# JVM crash logs
 hs_err_pid*
 replay_pid*
+
+# Database / test / sensitive data
+*.sql
+*.sqlite
+*.db
+*.csv
+*.json
+test-output/
+logs/
+keys/
+secret.txt
+jwt-secret.txt
