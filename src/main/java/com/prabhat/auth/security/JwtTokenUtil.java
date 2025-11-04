@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -23,7 +24,8 @@ public class JwtTokenUtil {
     private final long expirationMillis = 30 * 60 * 1000; // 30 minutes
 
     private Key getSigningKey() {
-        return new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.HS256.getJcaName());
+    	log.info("JWT SECRET (length={}): {}", secret.length(), secret);
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateToken(String email, String role) {
