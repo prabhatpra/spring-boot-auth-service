@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
         log.info("Signup request received for email: {}", signupRequest.getEmail());
         SignupResponse response = authService.signup(signupRequest);
-        log.info("Signup success for userId: {}", response.getUserName());
+        log.info("Signup success for username: {}", response.getUserName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

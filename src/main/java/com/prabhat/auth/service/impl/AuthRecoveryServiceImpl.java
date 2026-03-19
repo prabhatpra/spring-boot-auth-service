@@ -24,7 +24,7 @@ public class AuthRecoveryServiceImpl implements AuthRecoveryService {
         log.info("Checking username for email: {}", email);
 
         try {
-            // DB se username fetch karo
+            
             String username = jdbcTemplate.queryForObject(
                     "SELECT username FROM user WHERE email = ?",
                     String.class,

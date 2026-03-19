@@ -24,7 +24,7 @@ public class JwtTokenUtil {
     private final long expirationMillis = 30 * 60 * 1000; // 30 minutes
 
     private Key getSigningKey() {
-    	log.info("JWT SECRET (length={}): {}", secret.length(), secret);
+    	log.info("JWT SECRET (length={}): {}", secret.length());
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 

@@ -71,11 +71,12 @@ public class AuthServiceImpl implements AuthService {
         		? Constants.ROLE_ADMIN : Constants.ROLE_USER;
 
         // Build user Object
-        User user = new User(); 
-        user.setUserName(request.getUserName());
-        user.setEmail(request.getEmail());
-        user.setPassword(hashedPassword);
-        user.setRole(role);
+        User user =  User.builder()
+                  .userName(request.getUserName())
+                  .email(request.getEmail())
+                  .password(hashedPassword)
+                  .role(role)
+                  .build();
 
       
         // Save user in DB
@@ -84,9 +85,12 @@ public class AuthServiceImpl implements AuthService {
         log.info("User registered successfully: {}, role: {}", user.getEmail(), user.getRole());
 
         // Return signup response
-        return new SignupResponse(true, Messages.SIGNUP_SUCCESS   ,
-        		user.getUserName(), 
-        		user.getEmail());
+        return SignupResponse.builder()
+        		.success(true)
+        		.message(Messages.SIGNUP_SUCCESS)
+        		.userName(user.getUserName())
+        		.email(user.getEmail())
+                .build();
     }
 
     @Override
@@ -113,10 +117,13 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtTokenUtil.generateToken(user.getEmail(), role);
         log.info(Messages.LOGIN_SUCCESS, user.getUserName(), role);
 
-        return new LoginResponse(true, Messages.LOGIN_SUCCESS,
-                token,
-                (long) user.getId(),
-                user.getUserName(),
-                role);
+        return LoginResponse.builder()
+        		.success(true)
+        		.message(Messages.LOGIN_SUCCESS)
+                .token(token)
+                .userId((long) user.getId())
+                .userName(user.getUserName())
+                .role(role)
+                .build();
     }
 }
