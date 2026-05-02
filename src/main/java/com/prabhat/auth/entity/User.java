@@ -2,6 +2,8 @@ package com.prabhat.auth.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +40,8 @@ public class User {
 	
 	private boolean emailVerified;
 	
+	@CreationTimestamp
+	@Column(updatable = false)
 	private LocalDateTime createdAt;
 	
 	private LocalDateTime updatedAt;

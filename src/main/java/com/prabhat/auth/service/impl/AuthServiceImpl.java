@@ -1,5 +1,6 @@
 package com.prabhat.auth.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
 
       
         // Save user in DB
-        userRepository.save(user);
+        user = userRepository.save(user);
 
         log.info("User registered successfully: {}, role: {}", user.getEmail(), user.getRole());
 
@@ -90,7 +91,11 @@ public class AuthServiceImpl implements AuthService {
         		.success(true)
         		.message(Messages.SIGNUP_SUCCESS)
         		.userName(user.getUserName())
+        		.userId((long) user.getId())
         		.email(user.getEmail())
+        		.role(user.getRole())
+        		.createdAt(user.getCreatedAt())
+        		.timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -118,6 +123,7 @@ public class AuthServiceImpl implements AuthService {
                 .userId((long) user.getId())
                 .userName(user.getUserName())
                 .role(user.getRole())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }
