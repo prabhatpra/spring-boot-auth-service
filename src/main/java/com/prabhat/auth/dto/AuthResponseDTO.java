@@ -1,5 +1,7 @@
 package com.prabhat.auth.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignupResponse {
+public class AuthResponseDTO {
+
     private boolean success;
     private String message;
+    private String token;
+    private Long userId;
     private String userName;
     private String email;
-
+    private String role;
+    private LocalDateTime timestamp;
 }

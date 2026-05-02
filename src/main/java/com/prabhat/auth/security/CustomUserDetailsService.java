@@ -1,6 +1,6 @@
 package com.prabhat.auth.security;
 
-import com.prabhat.auth.pojo.User;
+import com.prabhat.auth.entity.User;
 import com.prabhat.auth.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

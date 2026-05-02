@@ -39,6 +39,19 @@ public class AuthException {
         	return code;
         }
     }
+    
+    @SuppressWarnings("serial")
+	public static class InvalidTokenException extends RuntimeException {
+    	private final int code = 400; // HTTP Bad Request
+    	
+    	public InvalidTokenException(String message) {
+    		super(message);
+    	}
+    	
+    	public int getCode() {
+    		return code;
+    	}
+    }
 
     }
     

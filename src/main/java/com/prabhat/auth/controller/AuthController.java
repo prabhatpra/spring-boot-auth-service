@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.prabhat.auth.constants.Constants;
-import com.prabhat.auth.dto.LoginRequest;
-import com.prabhat.auth.dto.LoginResponse;
-import com.prabhat.auth.dto.SignupRequest;
-import com.prabhat.auth.dto.SignupResponse;
+import com.prabhat.auth.dto.LoginRequestDTO;
+import com.prabhat.auth.dto.AuthResponseDTO;
+import com.prabhat.auth.dto.RegisterRequestDTO;
+import com.prabhat.auth.dto.UserResponseDTO;
 import com.prabhat.auth.service.interfaces.AuthService;
 
 import jakarta.validation.Valid;
@@ -33,17 +33,17 @@ public class AuthController {
     }
 
     @PostMapping(Constants.REGISTER_API)
-    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<UserResponseDTO> signup(@Valid @RequestBody RegisterRequestDTO signupRequest) {
         log.info("Signup request received for email: {}", signupRequest.getEmail());
-        SignupResponse response = authService.signup(signupRequest);
+        UserResponseDTO response = authService.signup(signupRequest);
         log.info("Signup success for username: {}", response.getUserName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping(Constants.LOGIN_API)
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         log.info("Login request received for username: {}", loginRequest.getUserName());
-        LoginResponse response = authService.login(loginRequest);
+        AuthResponseDTO response = authService.login(loginRequest);
         log.info("Login success for userName: {}", response.getUserName());
         return ResponseEntity.ok(response);
     }

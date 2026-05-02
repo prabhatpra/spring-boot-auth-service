@@ -5,15 +5,16 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.prabhat.auth.constants.Constants;
 import com.prabhat.auth.constants.Messages;
-import com.prabhat.auth.dto.LoginRequest;
-import com.prabhat.auth.dto.LoginResponse;
-import com.prabhat.auth.dto.SignupRequest;
-import com.prabhat.auth.dto.SignupResponse;
+import com.prabhat.auth.dto.AuthResponseDTO;
+import com.prabhat.auth.dto.LoginRequestDTO;
+import com.prabhat.auth.dto.RegisterRequestDTO;
+import com.prabhat.auth.dto.UserResponseDTO;
+import com.prabhat.auth.entity.User;
 import com.prabhat.auth.exception.AuthException;
-import com.prabhat.auth.pojo.User;
 import com.prabhat.auth.repository.UserRepository;
 import com.prabhat.auth.security.JwtTokenUtil;
 import com.prabhat.auth.service.interfaces.AuthService;
@@ -40,7 +41,8 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public SignupResponse signup(SignupRequest request) {
+    @Transactional
+    public UserResponseDTO signup(RegisterRequestDTO request) {
         log.info("Processing signup for email: {}", request.getEmail());
 
         // Password mismatch check
@@ -50,15 +52,14 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Email uniqueness check
-        boolean emailExists = userRepository.findByEmail(request.getEmail()).isPresent();
-        if (emailExists) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             log.warn(Messages.EMAIL_ALREADY_EXIST, request.getEmail());
             throw new AuthException.UserAlreadyExistsException(Messages.EMAIL_ALREADY_EXIST);
         }
         
         // UserName uniqueness check
-        boolean userExists = userRepository.findByUserName(request.getUserName()).isPresent();
-        if(userExists){
+        
+        if(userRepository.findByUserName(request.getUserName()).isPresent()){
             log.warn(Messages.USERNAME_ALREADY_EXISTS, request.getUserName());	
             throw new AuthException.UserAlreadyExistsException(Messages.USERNAME_ALREADY_EXISTS);
         }
@@ -80,12 +81,12 @@ public class AuthServiceImpl implements AuthService {
 
       
         // Save user in DB
-        userRepository.saveUser(user);
+        userRepository.save(user);
 
         log.info("User registered successfully: {}, role: {}", user.getEmail(), user.getRole());
 
         // Return signup response
-        return SignupResponse.builder()
+        return UserResponseDTO.builder()
         		.success(true)
         		.message(Messages.SIGNUP_SUCCESS)
         		.userName(user.getUserName())
@@ -94,36 +95,29 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest request) {
-        log.info("Processing login for username: {}", request.getUserName());
+    public AuthResponseDTO login(LoginRequestDTO request) {
 
-        Optional<User> optionalUser = userRepository.findByUserName(request.getUserName());
-
-        if (optionalUser.isEmpty()) {
-            log.warn(Messages.LOGIN_USER_NOT_FOUND, request.getUserName());
-            return new LoginResponse(false, Messages.LOGIN_USER_NOT_FOUND,
-                    Constants.RESET_PASSWORD_BASE_URL, null, null, null);
-        }
-
-        User user = optionalUser.get();
-
+        User user = userRepository.findByUserName(request.getUserName())
+        		.orElseThrow(() -> new AuthException.UserNotFoundException(Messages.LOGIN_USER_NOT_FOUND));
+    	
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn(Messages.LOGIN_INVALID_PASSWORD, request.getUserName());
-            return new LoginResponse(false, Messages.LOGIN_INVALID_PASSWORD,
-                    Constants.RESET_PASSWORD_BASE_URL+"?user=" + user.getUserName(), null, null, null);
+        	return AuthResponseDTO.builder()
+        			.success(false)
+        			.message(Messages.LOGIN_INVALID_PASSWORD +
+        					" Reset here: " + Constants.RESET_PASSWORD_BASE_URL)
+        			.build();
         }
 
-        String role = user.getRole();
-        String token = jwtTokenUtil.generateToken(user.getEmail(), role);
-        log.info(Messages.LOGIN_SUCCESS, user.getUserName(), role);
 
-        return LoginResponse.builder()
-        		.success(true)
-        		.message(Messages.LOGIN_SUCCESS)
+        String token = jwtTokenUtil.generateToken(user.getEmail(), user.getRole());
+
+        return AuthResponseDTO.builder()
+                .success(true)
+                .message(Messages.LOGIN_SUCCESS)
                 .token(token)
                 .userId((long) user.getId())
                 .userName(user.getUserName())
-                .role(role)
+                .role(user.getRole())
                 .build();
     }
 }

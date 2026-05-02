@@ -17,58 +17,75 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // Common method to build response
+    private ResponseEntity<Map<String, Object>> buildResponse(int status, String error, String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status);
+        response.put("error", error);
+        response.put("message", message);
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.valueOf(status));
+    }
+
+    // User already exists
     @ExceptionHandler(AuthException.UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExistsException(AuthException.UserAlreadyExistsException ex) {
         log.warn("User already exists: {}", ex.getMessage());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", ex.getCode());
-        response.put("error", "User Already Exists");
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-        
-        return new ResponseEntity<>(response, HttpStatus.valueOf(ex.getCode()));
+        return buildResponse(ex.getCode(), "User Already Exists", ex.getMessage());
     }
 
+    // Password mismatch
     @ExceptionHandler(AuthException.PasswordMismatchException.class)
     public ResponseEntity<Map<String, Object>> handlePasswordMismatchException(AuthException.PasswordMismatchException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Password Mismatch");
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
         log.warn("Password mismatch: {}", ex.getMessage());
-        
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return buildResponse(ex.getCode(), "Password Mismatch", ex.getMessage());
     }
 
+    // User not found
     @ExceptionHandler(AuthException.UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(AuthException.UserNotFoundException ex) {
+    public ResponseEntity<Map<String, Object>> handleUserNotFoundException(AuthException.UserNotFoundException ex) {
         log.warn("User not found: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return buildResponse(ex.getCode(), "User Not Found", ex.getMessage());
     }
 
+    // Invalid password
     @ExceptionHandler(AuthException.InvalidPasswordException.class)
-    public ResponseEntity<String> handleInvalidPasswordException(AuthException.InvalidPasswordException ex) {
+    public ResponseEntity<Map<String, Object>> handleInvalidPasswordException(AuthException.InvalidPasswordException ex) {
         log.warn("Invalid password: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return buildResponse(ex.getCode(), "Invalid Password", ex.getMessage());
     }
 
+    // Invalid token
+    @ExceptionHandler(AuthException.InvalidTokenException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTokenException(AuthException.InvalidTokenException ex) {
+        log.warn("Invalid token: {}", ex.getMessage());
+        return buildResponse(ex.getCode(), "Invalid Token", ex.getMessage());
+    }
 
+    // Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+
         String errors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
+
         log.warn("Validation failed: {}", errors);
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+
+        return buildResponse(400, "Validation Error", errors);
     }
 
-    // Generic Exception handler
+    // Generic exception
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGenericException(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         log.error("Unhandled exception: ", ex);
-        return new ResponseEntity<>("Internal server error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return buildResponse(
+                500,
+                "Internal Server Error",
+                "Something went wrong"
+        );
     }
 }
