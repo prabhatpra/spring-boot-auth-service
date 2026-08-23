@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@CrossOrigin(origins = "${frontend.url}")
 @RequestMapping(Constants.BASE_API)
 @Slf4j
 public class AuthController {
@@ -47,4 +46,16 @@ public class AuthController {
         log.info("Login success for userName: {}", response.getUserName());
         return ResponseEntity.ok(response);
     }
+    
 }
+
+
+
+
+
+
+
+
+
+
+
